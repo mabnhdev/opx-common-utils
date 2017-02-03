@@ -30,6 +30,8 @@
 #include <memory>
 #include <vector>
 #include <mutex>
+#include <cstdlib>
+#include <string>
 
 namespace {    //just for general parser cleanup
 std::mutex &LOCK() {
@@ -91,7 +93,14 @@ std_config_hdl_t std_config_load(const char *filename) {
     pthread_once(&_once_control,one_time_init);
 
     STD_ASSERT(filename != NULL);
-    xmlDoc * _doc = xmlReadFile(filename, NULL, 0);
+    std::string path;
+    if (const char * env_p = std::getenv("OPX_CONFIG_ROOT")) {
+      path = env_p;
+      path += "/";
+    }
+    path += filename;
+
+    xmlDoc * _doc = xmlReadFile(path.c_str(), NULL, 0);
 
     if (_doc!=nullptr) __get().ref(1);
 
