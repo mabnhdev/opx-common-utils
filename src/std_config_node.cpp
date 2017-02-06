@@ -20,6 +20,7 @@
 
 
 
+#include "std_config_file.h"
 #include "std_config_node.h"
 #include "std_assert.h"
 
@@ -32,6 +33,7 @@
 #include <mutex>
 #include <cstdlib>
 #include <string>
+#include <cstring>
 
 namespace {    //just for general parser cleanup
 std::mutex &LOCK() {
@@ -94,11 +96,15 @@ std_config_hdl_t std_config_load(const char *filename) {
 
     STD_ASSERT(filename != NULL);
     std::string path;
-    if (const char * env_p = std::getenv("OPX_CONFIG_ROOT")) {
+    if (const char * env_p = std::getenv("OPX_CFG_FILE_LOCATION")) {
+      const char *name = strstr(filename, STD_CFG_FILE_LOCATION "/");
+      if (name)
+        name += strlen(STD_CFG_FILE_LOCATION);
       path = env_p;
-      path += "/";
+      path += name;
+    } else {
+      path = filename;
     }
-    path += filename;
 
     xmlDoc * _doc = xmlReadFile(path.c_str(), NULL, 0);
 
