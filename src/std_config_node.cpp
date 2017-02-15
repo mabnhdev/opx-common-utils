@@ -98,10 +98,13 @@ std_config_hdl_t std_config_load(const char *filename) {
     std::string path;
     if (const char * env_p = std::getenv("OPX_CFG_FILE_LOCATION")) {
       const char *name = strstr(filename, STD_CFG_FILE_LOCATION "/");
-      if (name)
-        name += strlen(STD_CFG_FILE_LOCATION);
-      path = env_p;
-      path += name;
+      if (name) {
+          name += strlen(STD_CFG_FILE_LOCATION);
+          path = env_p;
+          path += name;
+      } else {
+          path = filename;
+      }
     } else {
       path = filename;
     }
