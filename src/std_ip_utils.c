@@ -51,7 +51,16 @@ uint32_t std_ip_v4_prefix_len_to_mask(unsigned int prefix_len)
 
     mask_val = ((prefix_len)?((1 << ((NBBY * sizeof(uint32_t) - prefix_len))) -1):0xffffffff);
 
+#ifdef ORIGINAL_DELL_CODE
     return (uint32_t)~(mask_val);
+#else
+    /*
+     * Return the mask value in network byte order. The original Dell
+     * code incorrectly returned it in host byte order and then passed
+     * this incorrect value to the SAI create_route function.
+     */
+    return htonl(~mask_val);
+#endif
 }
 
 void std_ip_v6_prefix_len_to_mask(uint8_t *mask_ptr, size_t mask_len, unsigned int prefix_len)
@@ -138,7 +147,14 @@ int std_ip_v4_mask_to_prefix_len(unsigned int in_mask)
         4, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 6, 0, 7, 8,
     };
 
+#ifdef ORIGINAL_DELL_CODE
     in_mask = htonl(in_mask);
+#else
+    /*
+     * The original Dell code was incorrect. The in_mask is already in
+     * network byte order.
+     */
+#endif
     mask_ptr = (uint8_t *)&in_mask;
     if (!in_mask) {
         return 0;
